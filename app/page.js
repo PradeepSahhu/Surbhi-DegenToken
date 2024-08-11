@@ -1,113 +1,357 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
 
-export default function Home() {
+import Animation from "@/components/Animation";
+import BlankCard from "@/components/Cards/BlankCard";
+import HomePopup from "@/components/PopUps/HomePopup";
+import UploadLinkPopUp from "@/components/PopUps/UploadLinkPopUp";
+import CollectionsPopUp from "@/components/PopUps/CollectionsPopUp";
+import Card from "@/components/Cards/Card";
+import BuyTokensPopUp from "@/components/PopUps/BuyTokensPopUp";
+import TransferTokenPopUp from "@/components/PopUps/TransferTokensPopUp";
+import Link from "next/link";
+// import MarketPlaceConnection from "@/Operations/MarketPlaceConnection";
+import AssetConnection from "@/Operations/AssetConnection";
+import IpfsToArray from "@/Connections/Functionality/realPFS";
+import fetchMultipleData from "@/Connections/Functionality/ipfsFetch";
+import BurnTokensPopUp from "@/components/PopUps/BurnTokensPopUp";
+
+export default function Home({ params }) {
+  const [showHomePopUp, setShowHomePopUp] = useState(false);
+  const [showUploadLink, setShowUploadLink] = useState(false);
+  const [showCollectionPopUp, setShowCollectionsPopUp] = useState(false);
+  const [showBuyToken, setShowBuyToken] = useState(true);
+  const [showTransferToken, setShowTransferToken] = useState(false);
+
+  //-----------------------------------
+
+  const [amountValue, setAmountValue] = useState();
+  const [tokenAmount, setTokenAmount] = useState();
+  const [weiFortoken, setWeiForToken] = useState();
+  const [uploadString, setUploadString] = useState();
+  const [assetConnectionAddress, setAssetConnectionAddress] = useState();
+  const [owner, setOwner] = useState();
+
+  //ipfs
+  const [allIPFS, setAllIPFS] = useState();
+  const [toMintIPFS, setToMintIPFS] = useState();
+
+  //collections.
+  const [collections, setCollections] = useState();
+
+  //already minted NFTs
+
+  //Burn Token
+
+  const [showBurn, setShowBurn] = useState(false);
+
+  const urls = [
+    "https://ipfs.io/ipfs/QmP52JDE2gdL3Rc8E83aEmD7SUnhcb5Jjhoy5YoSx4TPRZ", //lambo
+    "https://ipfs.io/ipfs/QmcWWFLLWf4fUwHPbqhJJupvPXUW4p6iS3jUivKiG7H27B", //robot
+    "https://ipfs.io/ipfs/QmUASD1U57tGLnupqBoieZfeX2hHWdVEmFz5Hs3kcXeguT", // space city
+    "https://ipfs.io/ipfs/QmNqTfh67vgAMyrefF1UxZH3nj34VHtFx4FsxkLNUuwEXf", // space colony
+    "https://ipfs.io/ipfs/QmUKHAfQqRsNDdyAtgKkQtkk5atn7t9nuGSpaZ4wh4vcdh", // punk girl
+    "https://ipfs.io/ipfs/QmZsKUdF3mvhRbmXVPvC4Q6VGwmUiDTdXnLYSPtzt3VL7n", // girl cyber punk
+    "https://ipfs.io/ipfs/QmbHSggvkZRbHXp5CpXty2JCAxznpdfQhfRhhg53Z9nymK", //god of destruction
+    "https://ipfs.io/ipfs/QmY3ZPzoxw83GUFMU1VB669VWTCzDWv565TdNCqhGSpPg9", // destroied city
+    "https://ipfs.io/ipfs/QmRsaFFU9DAfpMPHAtBLiMdr8NYB7WzBUUX6xm1NmwFpEy", //Dark Dragon
+    "https://ipfs.io/ipfs/QmZ4fb2P13vuhAhQNUbS4Le8YDU2Cc1qPb2M7hTVG437fD", // lightning dragon
+    "https://ipfs.io/ipfs/QmcN77SAPZJJfkngZcDKM6A1dMyRxdMyoPTnvc7WcCi866", // space dragon
+    "https://ipfs.io/ipfs/QmU3jiyPfUcgjCB1KJMLeFNw6QnT2W3pGVszYaSAruvBHq", // Dwarf Forging
+    "https://ipfs.io/ipfs/QmR7PNvVyDSnGXDccTBUd9bPMj91aAcDTf3piK1XCkKoQa", // army of undead
+    "https://ipfs.io/ipfs/QmbwM9oRVGR9Xyd8DE59AHGrVJYGtRbkqxMEKEow9rT8vM", // army
+  ];
+
+  const setFunc = async (data) => {
+    setToMintIPFS(data);
+    console.log("The data is : " + data[0].price);
+  };
+  const setData = async (data) => {
+    setCollections(data);
+  };
+
+  const getOwner = async () => {
+    try {
+      const contract = await MarketPlaceConnection(params.Marketplace);
+      const res = contract.returnOwner();
+      setOwner(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const BuyTokens = async () => {
+    try {
+      const contract = await MarketPlaceConnection(params.Marketplace);
+      await contract.buyTokens(parseInt(amountValue), {
+        value: parseInt(weiFortoken),
+      });
+      // console.log(parseInt(amountValue));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toMintNFT = async (URI, price) => {
+    try {
+      const contract = await MarketPlaceConnection(params.Marketplace);
+      await contract.redeemTokens(URI, price);
+      console.log(URI, price);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const uploadLink = async () => {
+    try {
+      // console.log(
+      //   "The address of asset Connection is : " + assetConnectionAddress
+      // );
+      const contract = await AssetConnection(assetConnectionAddress);
+      await contract.addMintNFT(uploadString);
+      console.log(uploadString);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const showTokensAmount = async () => {
+    try {
+      const contract = await MarketPlaceConnection(params.Marketplace);
+      const response = await contract.checkingBalance();
+      setTokenAmount(parseInt(response));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAssetConnectionAddress = async () => {
+    try {
+      const contract = await MarketPlaceConnection(params.Marketplace);
+      const res = await contract.returnAsset();
+      console.log("The response address is : " + res);
+      setAssetConnectionAddress(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getAllIPFS = async () => {
+    try {
+      console.log(
+        "The address of asset Connection is : " + assetConnectionAddress
+      );
+      const contract = await AssetConnection(assetConnectionAddress);
+      console.log("The contract Instances are " + contract);
+
+      const res = await contract.returnToMintNFT();
+      setAllIPFS(res);
+      console.log("Set all IPFS" + res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(params.Marketplace);
+    showTokensAmount();
+    getAssetConnectionAddress();
+  }, []);
+
+  if (allIPFS == undefined) {
+    getAllIPFS();
+  }
+  if (toMintIPFS == undefined) {
+    fetchMultipleData(allIPFS, setFunc);
+  }
+  if (owner == undefined) {
+    getOwner();
+  }
+
+  if (collections == undefined) {
+    fetchMultipleData(urls, setData);
+  }
+  const getImage = (ipfsURL) => {
+    const hash = ipfsURL.split("ipfs://")[1];
+    return `https://ipfs.io/ipfs/${hash}`;
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="bg-white font-myFont h-[100vh] m-0">
+      <div className="w-full grid items-center my-10">
+        <div className="grid grid-cols-4 gap-5">
+          <div className="flex justify-center">
+            <button
+              className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
+              onClick={() => setShowBuyToken(!showBuyToken)}
+            >
+              Buy DGN Tokens
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <button
+              className="bg-gradient-to-r from-yellow-400  to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
+              onClick={() => setShowTransferToken(true)}
+            >
+              Transfer DGN Tokens
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <button
+              className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
+              onClick={() => setShowBurn(!showBurn)}
+            >
+              Burn DGN Tokens
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <Link
+              className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
+              href={`${params.Marketplace}/BoughtNFTs`}
+            >
+              View Bought NFTs
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="absolute inset-20 mt-20 rounded-xl bg-gray-800">
+        <div className=" relative  h-9/12 rounded-xl mx-10 mt-10 flex justify-between">
+          <div className="">
+            <div className="my-2">
+              <p className="text-xl ">
+                Contract ID:
+                <span className="text-yellow-400 ml-2">
+                  0x161aBA4657174De9a36C3Ee71bC8163118d88d43
+                </span>
+              </p>
+            </div>
+            <div className="my-2">
+              <p className="text-xl">
+                Owner ID:
+                <span className="text-yellow-400 ml-2">
+                  {owner ? owner : "0x161aBA4657174De9a36C3Ee71bC8163118d88d43"}
+                </span>
+              </p>
+            </div>
+            <div className="my-2">
+              <p className="text-xl">
+                Date Created:
+                <span className="text-yellow-400 ml-2">2024-10-10</span>
+              </p>
+            </div>
+            <div className="my-2">
+              <p className="text-xl">
+                Genera: <span className="text-yellow-400 ml-2">Medical</span>
+              </p>
+            </div>
+
+            <div className="my-2">
+              <p className="text-xl">
+                NFT Available:
+                <span className="text-yellow-400 ml-2">
+                  {allIPFS ? allIPFS.length : "0xx"}
+                </span>
+              </p>
+            </div>
+            <div className="my-2">
+              <p className="text-xl">
+                Token Amount:
+                <span className="text-yellow-400 ml-2">
+                  {" "}
+                  {tokenAmount ? tokenAmount : "100xx"}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Animation
+              url={
+                "https://lottie.host/770383c2-dc9d-469f-bf71-db2bb3d87a9a/AvhUr5PL2U.json"
+              }
+              width={400}
+              height={400}
+            />
+          </div>
+        </div>
+
+        <div className="grid items-end my-5">
+          <div className="grid justify-center ">
+            <button className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md">
+              Withdraw Amount
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+      <div className="top-[90vh] relative">
+        <div className="bg-white">
+          <div className="grid grid-cols-3">
+            <div className="grid col-start-1 col-end-4"></div>
+          </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          <hr className="col-start-1 col-end-4 w-full h-0.5 mx-auto bg-gray-100 border-0 rounded  dark:bg-gray-700" />
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+          <div className="mt-10 col-start-1 col-end-4 bg-opacity-90 p-10 justify-center space-x-8 space-y-5 relative">
+            <div className="text-2xl bolder flex justify-center mb-10 ">
+              <p className="bg-gradient-to-r from-red-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent px-10 text-5xl">
+                NFTs To Buy
+              </p>
+            </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+            {toMintIPFS
+              ? toMintIPFS.map((eachItem, index) => (
+                  <Card
+                    key={index}
+                    itemName={eachItem.name}
+                    itemDescription={eachItem.description}
+                    itemSrc={getImage(eachItem.image)}
+                    itemPrice={eachItem.price}
+                    toMintNFT={toMintNFT}
+                    URI={allIPFS[index]}
+                  />
+                ))
+              : ""}
+
+            <BlankCard setShowHomePopUp={setShowHomePopUp} />
+          </div>
+          {showHomePopUp && (
+            <HomePopup
+              setShowHomePopUp={setShowHomePopUp}
+              setShowUploadLink={setShowUploadLink}
+              setShowCollectionsPopUp={setShowCollectionsPopUp}
+            />
+          )}
+          {showUploadLink && (
+            <UploadLinkPopUp
+              setShowHomePopUp={setShowHomePopUp}
+              setShowUploadLink={setShowUploadLink}
+              setUploadString={setUploadString}
+              uploadLink={uploadLink}
+            />
+          )}
+          {showCollectionPopUp && (
+            <CollectionsPopUp
+              setShowHomePopUp={setShowHomePopUp}
+              setShowCollectionsPopUp={setShowCollectionsPopUp}
+              collections={collections}
+            />
+          )}
+          {showBuyToken && (
+            <BuyTokensPopUp
+              setShowBuyToken={setShowBuyToken}
+              setAmountValue={setAmountValue}
+              BuyTokens={BuyTokens}
+              setWeiForToken={setWeiForToken}
+            />
+          )}
+          {showTransferToken && (
+            <TransferTokenPopUp setShowTransferToken={setShowTransferToken} />
+          )}
+
+          {showBurn && <BurnTokensPopUp setShowBurn={setShowBurn} />}
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
