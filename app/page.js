@@ -37,6 +37,9 @@ export default function Home({ params }) {
   const [friendAddress, setFriendAddress] = useState();
   const [friendAmount, setFriendAmount] = useState();
 
+  //Burn token
+
+  const [burntokenAmount, setBurnTokenAmount] = useState();
   //Contract Token Balance
   const [tokenBalance, setTokenBalance] = useState();
 
@@ -186,7 +189,21 @@ export default function Home({ params }) {
   const transferOther = async () => {
     try {
       console.table([friendAddress, friendAmount]);
-      // await medicalContract.tranferTokens(friendAddress,parseInt(friendAmount))
+      await medicalContract.tranferTokens(
+        friendAddress,
+        parseInt(friendAmount)
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //burn Token
+
+  const burnExtraTokens = async () => {
+    try {
+      // await medicalContract.burnToken(parseInt(burntokenAmount));
+      console.table(parseInt(burntokenAmount));
     } catch (error) {
       console.log(error);
     }
@@ -470,7 +487,13 @@ export default function Home({ params }) {
             />
           )}
 
-          {showBurn && <BurnTokensPopUp setShowBurn={setShowBurn} />}
+          {showBurn && (
+            <BurnTokensPopUp
+              setShowBurn={setShowBurn}
+              setBurnTokenAmount={setBurnTokenAmount}
+              burnExtraTokens={burnExtraTokens}
+            />
+          )}
         </div>
       </div>
     </div>

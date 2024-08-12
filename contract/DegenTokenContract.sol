@@ -69,6 +69,11 @@ contract DegenTokenContract is ERC20 {
         return medicalInstance.returnMintedNFT(msg.sender);
     }
 
+    function burnToken(uint _tokenAmount) external {
+        require(balanceOf(msg.sender) >= _tokenAmount);
+        _burn(msg.sender, _tokenAmount);
+    }
+
     function withdrawEther() external onlyOwner {
         (bool res, ) = payable(msg.sender).call{
             value: balanceOf(address(this))
