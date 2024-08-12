@@ -60,6 +60,11 @@ contract DegenTokenContract is ERC20 {
         _mint(msg.sender, _amount);
     }
 
+    function tranferTokens(address _recepient, uint _amount) external {
+        require(balanceOf(msg.sender) >= _amount);
+        transfer(_recepient, _amount);
+    }
+
     function getMintedNFT() external view returns (string[] memory) {
         return medicalInstance.returnMintedNFT(msg.sender);
     }

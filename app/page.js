@@ -28,9 +28,19 @@ export default function Home({ params }) {
 
   //-----------------------------------
 
+  //BuyTokens
   const [amountValue, setAmountValue] = useState();
-  const [tokenBalance, setTokenBalance] = useState();
   const [weiFortoken, setWeiForToken] = useState();
+
+  //TransferTokens
+
+  const [friendAddress, setFriendAddress] = useState();
+  const [friendAmount, setFriendAmount] = useState();
+
+  //Contract Token Balance
+  const [tokenBalance, setTokenBalance] = useState();
+
+  //another thing
   const [uploadString, setUploadString] = useState();
   const [assetConnectionAddress, setAssetConnectionAddress] = useState();
   const [owner, setOwner] = useState();
@@ -56,7 +66,7 @@ export default function Home({ params }) {
 
   //---------------------------
 
-  const contractInstance = "0xd503B672cF77b83E28CD295E3eF23e59A73A1871";
+  const contractInstance = "0xb999e3C80150322c7bd6d1aFB5860d3f65CDa912";
   const contractABI = process.env.abi;
   const [medicalContract, setMedicalContract] = useState();
 
@@ -162,11 +172,21 @@ export default function Home({ params }) {
 
   const BuyTokens = async () => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      await contract.buyTokens(parseInt(amountValue), {
+      console.table([parseInt(amountValue), parseInt(weiFortoken)]);
+      await medicalContract.buyTokens(parseInt(amountValue), {
         value: parseInt(weiFortoken),
       });
-      // console.log(parseInt(amountValue));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //Function to transfer to Friend
+
+  const transferOther = async () => {
+    try {
+      console.table([friendAddress, friendAmount]);
+      // await medicalContract.tranferTokens(friendAddress,parseInt(friendAmount))
     } catch (error) {
       console.log(error);
     }
@@ -174,8 +194,7 @@ export default function Home({ params }) {
 
   const toMintNFT = async (URI, price) => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      await contract.redeemTokens(URI, price);
+      await medicalContract.redeemTokens(URI, price);
       console.log(URI, price);
     } catch (error) {
       console.log(error);
@@ -187,8 +206,8 @@ export default function Home({ params }) {
       // console.log(
       //   "The address of asset Connection is : " + assetConnectionAddress
       // );
-      const contract = await AssetConnection(assetConnectionAddress);
-      await contract.addMintNFT(uploadString);
+
+      await medicalContract.addMintNFT(uploadString);
       console.log(uploadString);
     } catch (error) {
       console.log(error);
@@ -443,7 +462,12 @@ export default function Home({ params }) {
             />
           )}
           {showTransferToken && (
-            <TransferTokenPopUp setShowTransferToken={setShowTransferToken} />
+            <TransferTokenPopUp
+              setFriendAddress={setFriendAddress}
+              setFriendAmount={setFriendAmount}
+              setShowTransferToken={setShowTransferToken}
+              transferOther={transferOther}
+            />
           )}
 
           {showBurn && <BurnTokensPopUp setShowBurn={setShowBurn} />}

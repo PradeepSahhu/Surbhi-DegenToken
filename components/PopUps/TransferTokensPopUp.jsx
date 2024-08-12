@@ -1,6 +1,11 @@
 import { useRef } from "react";
 
-export default function TransferTokenPopUp({ setShowTransferToken }) {
+export default function TransferTokenPopUp({
+  setShowTransferToken,
+  setFriendAddress,
+  setFriendAmount,
+  transferOther,
+}) {
   const refElement = useRef();
 
   const refereceModal = (e) => {
@@ -35,6 +40,7 @@ export default function TransferTokenPopUp({ setShowTransferToken }) {
               <input
                 className="text-white  p-5 rounded-md mx-5 my-2  border-yellow-400 border-2 bg-transparent focus-within:bg-black focus:outline-yellow-400 focus:outline-none"
                 placeholder="Enter the Address "
+                onChange={(e) => setFriendAddress(e.target.value)}
               />
               <label className="grid col-start-1 col-end-1 ">
                 Enter the Amount
@@ -42,10 +48,14 @@ export default function TransferTokenPopUp({ setShowTransferToken }) {
               <input
                 className="text-white  p-5 rounded-md mx-5 my-2  border-yellow-400 border-2 bg-transparent focus-within:bg-black focus:outline-yellow-400 focus:outline-none"
                 placeholder="Enter the Token Amount"
+                onChange={(e) => setFriendAmount(e.target.value)}
               />
             </form>
           </div>
-          <button className="px-10 py-5 bg-orange-600 rounded-lg mb-5">
+          <button
+            className="px-10 py-5 bg-orange-600 rounded-lg mb-5"
+            onClick={transferOther}
+          >
             Transfer
           </button>
 

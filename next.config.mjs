@@ -425,6 +425,24 @@ const nextConfig = {
         inputs: [
           {
             internalType: "address",
+            name: "_recepient",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
+        ],
+        name: "tranferTokens",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
             name: "to",
             type: "address",
           },
