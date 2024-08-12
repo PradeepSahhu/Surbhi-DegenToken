@@ -43,9 +43,10 @@ export default function Home({ params }) {
   //Contract Token Balance
   const [tokenBalance, setTokenBalance] = useState();
 
-  //another thing
+  //uploading Links to contract to show on frontend...
+
   const [uploadString, setUploadString] = useState();
-  const [assetConnectionAddress, setAssetConnectionAddress] = useState();
+
   const [owner, setOwner] = useState();
 
   //ipfs - get from contract and passed through functions to get the image
@@ -220,12 +221,9 @@ export default function Home({ params }) {
 
   const uploadLink = async () => {
     try {
-      // console.log(
-      //   "The address of asset Connection is : " + assetConnectionAddress
-      // );
+      console.log("The upload string is  Connection is : " + uploadString);
 
-      await medicalContract.addMintNFT(uploadString);
-      console.log(uploadString);
+      // await medicalContract.addNFTURI(uploadString);
     } catch (error) {
       console.log(error);
     }
