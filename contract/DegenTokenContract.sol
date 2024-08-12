@@ -25,6 +25,10 @@ contract DegenTokenContract is ERC20 {
         return balanceOf(msg.sender);
     }
 
+    function returnPerAmount() external view returns (uint) {
+        return _perAmount;
+    }
+
     function returnAsset() external view returns (address) {
         return address(medicalInstance);
     }
@@ -37,6 +41,14 @@ contract DegenTokenContract is ERC20 {
         require(balanceOf(msg.sender) >= _NftPrice);
         _transfer(msg.sender, address(this), _NftPrice);
         medicalInstance.gameAssetMint(msg.sender, _URI);
+    }
+
+    function getToMintNFT() external view returns (string[] memory) {
+        return medicalInstance.returnToMintNFT();
+    }
+
+    function addNFTURI(string memory _URI) external {
+        medicalInstance.addMintNFT(_URI);
     }
 
     function buyTokens(uint _amount) external payable {

@@ -11,35 +11,104 @@ import BuyTokensPopUp from "@/components/PopUps/BuyTokensPopUp";
 import TransferTokenPopUp from "@/components/PopUps/TransferTokensPopUp";
 import Link from "next/link";
 // import MarketPlaceConnection from "@/Operations/MarketPlaceConnection";
-import AssetConnection from "@/Operations/AssetConnection";
+// import AssetConnection from "@/Operations/AssetConnection";
 import IpfsToArray from "@/Connections/Functionality/realPFS";
 import fetchMultipleData from "@/Connections/Functionality/ipfsFetch";
 import BurnTokensPopUp from "@/components/PopUps/BurnTokensPopUp";
+import { ethers } from "ethers";
 
 export default function Home({ params }) {
+  //-------------------------------------
+  //PopUp showing boolean values
   const [showHomePopUp, setShowHomePopUp] = useState(false);
   const [showUploadLink, setShowUploadLink] = useState(false);
   const [showCollectionPopUp, setShowCollectionsPopUp] = useState(false);
-  const [showBuyToken, setShowBuyToken] = useState(true);
+  const [showBuyToken, setShowBuyToken] = useState(false);
   const [showTransferToken, setShowTransferToken] = useState(false);
 
   //-----------------------------------
 
   const [amountValue, setAmountValue] = useState();
-  const [tokenAmount, setTokenAmount] = useState();
+  const [tokenBalance, setTokenBalance] = useState();
   const [weiFortoken, setWeiForToken] = useState();
   const [uploadString, setUploadString] = useState();
   const [assetConnectionAddress, setAssetConnectionAddress] = useState();
   const [owner, setOwner] = useState();
 
-  //ipfs
+  //ipfs - get from contract and passed through functions to get the image
   const [allIPFS, setAllIPFS] = useState();
   const [toMintIPFS, setToMintIPFS] = useState();
 
   //collections.
+
+  //contracts
   const [collections, setCollections] = useState();
+  const [ethereumWindow, setEthereumWindow] = useState();
+  const [connectedAccounts, setConnectedAccounts] = useState();
+
+  //-----------------------------
+  //To Mint Section
+
+  const [toMintNFTValue, setToMintNFTValue] = useState();
+  const [tomintMedicalNFT, setToMintMedicalNFT] = useState();
 
   //already minted NFTs
+
+  //---------------------------
+
+  const contractInstance = "0xd503B672cF77b83E28CD295E3eF23e59A73A1871";
+  const contractABI = process.env.abi;
+  const [medicalContract, setMedicalContract] = useState();
+
+  const Starting = async () => {
+    if (window.ethereum) {
+      console.log("Metamask is installed");
+      setEthereumWindow(window.ethereum);
+    }
+
+    if (ethereumWindow) {
+      const accountsArray = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      setConnectedAccounts(accountsArray[0]);
+      console.log(accountsArray[0]);
+    }
+    connectToMetamaskWallet();
+  };
+
+  const connectToMetamaskWallet = async () => {
+    if (window.ethereum) {
+      const allAccounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setConnectedAccounts(allAccounts[0]);
+    }
+
+    // connectToMetamaskWallet();
+  };
+
+  const connectToContractInstance = async () => {
+    try {
+      console.log(contractABI);
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+
+      const signer = await provider.getSigner();
+
+      // Create a new instance of the contract with the signer
+      const contract = new ethers.Contract(
+        contractInstance,
+        contractABI,
+        signer
+      );
+      setMedicalContract(contract);
+      console.log(contract);
+    } catch (error) {
+      console.error("User rejected the request:", error);
+    }
+  };
+
+  //------------------------
 
   //Burn Token
 
@@ -72,9 +141,20 @@ export default function Home({ params }) {
 
   const getOwner = async () => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      const res = contract.returnOwner();
+      const res = await medicalContract.returnOwner();
       setOwner(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getToMintMedicalNFT = async () => {
+    try {
+      console.log("This getToMintMedicalNFT function is being called");
+      const toMintNFT = await medicalContract.getToMintNFT();
+      console.log(toMintNFT);
+      setToMintNFTValue(toMintNFT.length);
+      setToMintMedicalNFT(toMintNFT);
     } catch (error) {
       console.log(error);
     }
@@ -115,11 +195,10 @@ export default function Home({ params }) {
     }
   };
 
-  const showTokensAmount = async () => {
+  const showTokenBalance = async () => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      const response = await contract.checkingBalance();
-      setTokenAmount(parseInt(response));
+      const tokenBalance = await medicalContract.balance();
+      setTokenBalance(parseInt(tokenBalance));
     } catch (error) {
       console.log(error);
     }
@@ -153,9 +232,9 @@ export default function Home({ params }) {
   };
 
   useEffect(() => {
-    console.log(params.Marketplace);
-    showTokensAmount();
-    getAssetConnectionAddress();
+    connectToContractInstance();
+    Starting();
+    // getAssetConnectionAddress();
   }, []);
 
   if (allIPFS == undefined) {
@@ -168,8 +247,16 @@ export default function Home({ params }) {
     getOwner();
   }
 
+  if (tokenBalance == undefined) {
+    showTokenBalance();
+  }
+
   if (collections == undefined) {
     fetchMultipleData(urls, setData);
+  }
+
+  if (toMintNFTValue == undefined) {
+    getToMintMedicalNFT();
   }
   const getImage = (ipfsURL) => {
     const hash = ipfsURL.split("ipfs://")[1];
@@ -207,9 +294,9 @@ export default function Home({ params }) {
           <div className="flex justify-center">
             <Link
               className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
-              href={`${params.Marketplace}/BoughtNFTs`}
+              href={`/BoughtNFTs`}
             >
-              View Bought NFTs
+              Redeemed NFTs
             </Link>
           </div>
         </div>
@@ -221,16 +308,16 @@ export default function Home({ params }) {
             <div className="my-2">
               <p className="text-xl ">
                 Contract ID:
-                <span className="text-yellow-400 ml-2">
-                  0x161aBA4657174De9a36C3Ee71bC8163118d88d43
-                </span>
+                <span className="text-yellow-400 ml-2">{contractInstance}</span>
               </p>
             </div>
             <div className="my-2">
               <p className="text-xl">
                 Owner ID:
                 <span className="text-yellow-400 ml-2">
-                  {owner ? owner : "0x161aBA4657174De9a36C3Ee71bC8163118d88d43"}
+                  {owner
+                    ? owner
+                    : "0x161aBA4657174De9a36C3Ee71bC8163118d88d43XX"}
                 </span>
               </p>
             </div>
@@ -250,7 +337,7 @@ export default function Home({ params }) {
               <p className="text-xl">
                 NFT Available:
                 <span className="text-yellow-400 ml-2">
-                  {allIPFS ? allIPFS.length : "0xx"}
+                  {toMintNFTValue != undefined ? toMintNFTValue : "0xx"}
                 </span>
               </p>
             </div>
@@ -259,7 +346,7 @@ export default function Home({ params }) {
                 Token Amount:
                 <span className="text-yellow-400 ml-2">
                   {" "}
-                  {tokenAmount ? tokenAmount : "100xx"}
+                  {tokenBalance ? tokenBalance : "100xx"}
                 </span>
               </p>
             </div>
@@ -276,10 +363,20 @@ export default function Home({ params }) {
         </div>
 
         <div className="grid items-end my-5">
-          <div className="grid justify-center ">
-            <button className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md">
-              Withdraw Amount
-            </button>
+          <div className="flex justify-center gap-x-10">
+            <div className="flex">
+              <button
+                className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md"
+                onClick={() => connectToMetamaskWallet()}
+              >
+                Connect to Metamask
+              </button>
+            </div>
+            <div className=" flex">
+              <button className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md">
+                Withdraw Ether
+              </button>
+            </div>
           </div>
         </div>
       </div>
