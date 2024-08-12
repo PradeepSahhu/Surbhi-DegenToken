@@ -50,7 +50,10 @@ export default function Home({ params }) {
   const [owner, setOwner] = useState();
 
   //ipfs - get from contract and passed through functions to get the image
-  const [allIPFS, setAllIPFS] = useState();
+  const [allURIFromContract, setAllURIFromContract] = useState();
+
+  // allURIFromContract  - used to get the data from the contract.
+  // to mintIPFS is used to show the data of those IPFS links of the like name price etc.
   const [toMintIPFS, setToMintIPFS] = useState();
 
   //collections.
@@ -249,17 +252,11 @@ export default function Home({ params }) {
     }
   };
 
-  const getAllIPFS = async () => {
+  const getAllURIfromContracts = async () => {
     try {
-      console.log(
-        "The address of asset Connection is : " + assetConnectionAddress
-      );
-      const contract = await AssetConnection(assetConnectionAddress);
-      console.log("The contract Instances are " + contract);
-
-      const res = await contract.returnToMintNFT();
-      setAllIPFS(res);
-      console.log("Set all IPFS" + res);
+      // const res = await medicalContract.getToMintNFT();
+      setAllURIFromContract(res);
+      console.log("Set IPFS from contract is : " + res);
     } catch (error) {
       console.log(error);
     }
@@ -271,12 +268,14 @@ export default function Home({ params }) {
     // getAssetConnectionAddress();
   }, []);
 
-  if (allIPFS == undefined) {
-    getAllIPFS();
+  if (allURIFromContract == undefined) {
+    getAllURIfromContracts();
   }
   if (toMintIPFS == undefined) {
-    fetchMultipleData(allIPFS, setFunc);
+    fetchMultipleData(getAllURIfromContracts, setFunc);
   }
+
+  //Done...
   if (owner == undefined) {
     getOwner();
   }
