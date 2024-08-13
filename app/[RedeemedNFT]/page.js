@@ -11,7 +11,7 @@ import { ethers } from "ethers";
 export default function BoughtNFT() {
   const [mintedNFT, setMintedNft] = useState();
 
-  const contractInstance = "0xb999e3C80150322c7bd6d1aFB5860d3f65CDa912";
+  const contractInstance = "0x8144854A0e170A3d3887AD7544c5Dad044f21007";
   const contractABI = process.env.abi;
   const [medicalContract, setMedicalContract] = useState();
 

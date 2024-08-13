@@ -77,7 +77,7 @@ export default function Home({ params }) {
   // TokenAmount
   const [tokenValue, setTokenValue] = useState();
 
-  const contractInstance = "0xb999e3C80150322c7bd6d1aFB5860d3f65CDa912";
+  const contractInstance = "0x8144854A0e170A3d3887AD7544c5Dad044f21007";
   const contractABI = process.env.abi;
   const [medicalContract, setMedicalContract] = useState();
 
@@ -145,7 +145,7 @@ export default function Home({ params }) {
 
   const setFunc = async (data) => {
     setToMintIPFS(data);
-    console.log("The data is : " + data[0].price);
+    // console.log("The data is : " + data[0].price);
   };
   const setData = async (data) => {
     setCollections(data);
@@ -260,6 +260,14 @@ export default function Home({ params }) {
       console.log(toMintNFT);
       setToMintNFTValue(toMintNFT.length);
       setToMintMedicalNFT(toMintNFT);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const withDrawEthers = async () => {
+    try {
+      await medicalContract.withdrawEther();
     } catch (error) {
       console.log(error);
     }
@@ -443,7 +451,10 @@ export default function Home({ params }) {
               </button>
             </div>
             <div className=" flex">
-              <button className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md">
+              <button
+                className="px-10 rounded-xl bg-yellow-400 pt-3 pb-2.5 shadow-orange-500 shadow-md"
+                onClick={withDrawEthers}
+              >
                 Withdraw Ether
               </button>
             </div>
