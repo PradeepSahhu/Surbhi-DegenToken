@@ -16,6 +16,7 @@ import IpfsToArray from "@/Connections/Functionality/realPFS";
 import fetchMultipleData from "@/Connections/Functionality/ipfsFetch";
 import BurnTokensPopUp from "@/components/PopUps/BurnTokensPopUp";
 import { ethers } from "ethers";
+// import IpfsToArray from "@/Connections/Functionality/realPFS";
 
 export default function Home({ params }) {
   //-------------------------------------
@@ -135,20 +136,11 @@ export default function Home({ params }) {
   const [showBurn, setShowBurn] = useState(false);
 
   const urls = [
-    "https://ipfs.io/ipfs/QmP52JDE2gdL3Rc8E83aEmD7SUnhcb5Jjhoy5YoSx4TPRZ", //lambo
-    "https://ipfs.io/ipfs/QmcWWFLLWf4fUwHPbqhJJupvPXUW4p6iS3jUivKiG7H27B", //robot
-    "https://ipfs.io/ipfs/QmUASD1U57tGLnupqBoieZfeX2hHWdVEmFz5Hs3kcXeguT", // space city
-    "https://ipfs.io/ipfs/QmNqTfh67vgAMyrefF1UxZH3nj34VHtFx4FsxkLNUuwEXf", // space colony
-    "https://ipfs.io/ipfs/QmUKHAfQqRsNDdyAtgKkQtkk5atn7t9nuGSpaZ4wh4vcdh", // punk girl
-    "https://ipfs.io/ipfs/QmZsKUdF3mvhRbmXVPvC4Q6VGwmUiDTdXnLYSPtzt3VL7n", // girl cyber punk
-    "https://ipfs.io/ipfs/QmbHSggvkZRbHXp5CpXty2JCAxznpdfQhfRhhg53Z9nymK", //god of destruction
-    "https://ipfs.io/ipfs/QmY3ZPzoxw83GUFMU1VB669VWTCzDWv565TdNCqhGSpPg9", // destroied city
-    "https://ipfs.io/ipfs/QmRsaFFU9DAfpMPHAtBLiMdr8NYB7WzBUUX6xm1NmwFpEy", //Dark Dragon
-    "https://ipfs.io/ipfs/QmZ4fb2P13vuhAhQNUbS4Le8YDU2Cc1qPb2M7hTVG437fD", // lightning dragon
-    "https://ipfs.io/ipfs/QmcN77SAPZJJfkngZcDKM6A1dMyRxdMyoPTnvc7WcCi866", // space dragon
-    "https://ipfs.io/ipfs/QmU3jiyPfUcgjCB1KJMLeFNw6QnT2W3pGVszYaSAruvBHq", // Dwarf Forging
-    "https://ipfs.io/ipfs/QmR7PNvVyDSnGXDccTBUd9bPMj91aAcDTf3piK1XCkKoQa", // army of undead
-    "https://ipfs.io/ipfs/QmbwM9oRVGR9Xyd8DE59AHGrVJYGtRbkqxMEKEow9rT8vM", // army
+    "https://ipfs.io/ipfs/QmfK2ttedU6wxgYUF3EBXF1o5HkdwqVrqVRrDniaPbC9LL",
+    "https://ipfs.io/ipfs/QmRTk8waq4g9AmRvdSEVCRt7TmNkYa1WUrVdxeptvZJpvF",
+    "https://ipfs.io/ipfs/QmYKk5MWjTSuvS7teJvgYon5LHMzu52CheVNsP3p8rDEi7",
+    "https://ipfs.io/ipfs/QmTMtjc8x6UBHeitfom4u27c2JqQTmd41jV4yX2wx7Rvty",
+    "https://ipfs.io/ipfs/Qmcn7zKK6fgA3BhEiNCuJLAw6fdbw4cR1TR65HQgV6pM8j",
   ];
 
   const setFunc = async (data) => {
@@ -273,11 +265,41 @@ export default function Home({ params }) {
     }
   };
 
+  //---------BoughtNFTs
+
+  const [mintedNFT, setMintedNft] = useState();
+
+  //-------Connection ---
+
+  //------connection ---
+
+  const alreadyBought = async () => {
+    try {
+      const URIBoughtNFT = await medicalContract.getMintedNFT();
+
+      const result = await IpfsToArray(URIBoughtNFT);
+      console.log("The bought NFT is : ", result);
+
+      setMintedNft(result);
+      console.log("The result is : " + result.length);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //-----------------
+
   useEffect(() => {
     connectToContractInstance();
     Starting();
     // getAssetConnectionAddress();
   }, []);
+
+  //------Bought NFT---
+
+  if (mintedNFT == undefined) {
+    alreadyBought();
+  }
 
   if (allURIFromContract == undefined) {
     getAllURIfromContracts();
@@ -342,7 +364,10 @@ export default function Home({ params }) {
           <div className="flex justify-center">
             <Link
               className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
-              href={`/BoughtNFTs`}
+              href={{
+                pathname: `/BoughtNFTs`,
+                query: `${mintedNFT}`,
+              }}
             >
               Redeemed NFTs
             </Link>

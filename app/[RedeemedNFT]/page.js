@@ -6,19 +6,68 @@ import BoughtCard from "@/components/Cards/BoughtCard";
 // import ZoomCard from "@/components/PopUps/ZoomCard";
 // import MarketPlaceConnection from "@/Operations/MarketPlaceConnection";
 import IpfsToArray from "@/Connections/Functionality/realPFS";
+import { ethers } from "ethers";
 
-export default function BoughtNFT({ params }) {
-  const [showZoomCard, setShowZoomCard] = useState(false);
+export default function BoughtNFT() {
   const [mintedNFT, setMintedNft] = useState();
-  const [zoomIndex, setZoomIndex] = useState(0);
+
+  const contractInstance = "0xb999e3C80150322c7bd6d1aFB5860d3f65CDa912";
+  const contractABI = process.env.abi;
+  const [medicalContract, setMedicalContract] = useState();
+
+  const Starting = async () => {
+    if (window.ethereum) {
+      console.log("Metamask is installed");
+      setEthereumWindow(window.ethereum);
+    }
+
+    if (ethereumWindow) {
+      const accountsArray = await window.ethereum.request({
+        method: "eth_accounts",
+      });
+      setConnectedAccounts(accountsArray[0]);
+      console.log(accountsArray[0]);
+    }
+    connectToMetamaskWallet();
+  };
+
+  const connectToMetamaskWallet = async () => {
+    if (window.ethereum) {
+      const allAccounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setConnectedAccounts(allAccounts[0]);
+    }
+
+    // connectToMetamaskWallet();
+  };
+
+  const connectToContractInstance = async () => {
+    try {
+      console.log(contractABI);
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+
+      const signer = await provider.getSigner();
+
+      // Create a new instance of the contract with the signer
+      const contract = new ethers.Contract(
+        contractInstance,
+        contractABI,
+        signer
+      );
+      setMedicalContract(contract);
+      console.log(contract);
+    } catch (error) {
+      console.error("User rejected the request:", error);
+    }
+  };
 
   const alreadyBought = async () => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      const res = await contract.getMintedNFT();
-      // const res =
-      //   "https://ipfs.io/ipfs/QmY3ZPzoxw83GUFMU1VB669VWTCzDWv565TdNCqhGSpPg9";
-      const result = await IpfsToArray(res);
+      const URIBoughtNFT = await medicalContract.getMintedNFT();
+
+      const result = await IpfsToArray(URIBoughtNFT);
 
       setMintedNft(result);
       console.log("The result is : " + result.length);
@@ -33,7 +82,7 @@ export default function BoughtNFT({ params }) {
   };
 
   useEffect(() => {
-    console.log(params.Marketplace);
+    connectToContractInstance();
   }, []);
 
   if (mintedNFT == undefined) {
@@ -59,14 +108,12 @@ export default function BoughtNFT({ params }) {
           mintedNFT.map((eachNFT, index) => (
             <BoughtCard
               key={index}
-              setShowZoomCard={setShowZoomCard}
               itemName={eachNFT.name}
               itemDescription={eachNFT.description}
               itemSrc={getImage(eachNFT.image)}
               itemPrice={eachNFT.price}
               // onClick={() => setZoomIndex(index)}
               index={index}
-              setZoomIndex={setZoomIndex}
             />
           ))
         ) : (
@@ -75,15 +122,6 @@ export default function BoughtNFT({ params }) {
           </div>
         )}
       </div>
-      {showZoomCard && (
-        <ZoomCard
-          setShowZoomCard={setShowZoomCard}
-          itemSrc={mintedNFT[zoomIndex].image}
-          itemDescription={mintedNFT[zoomIndex].description}
-          itemPrice={mintedNFT[zoomIndex].price}
-          itemName={mintedNFT[zoomIndex].name}
-        />
-      )}
     </div>
   );
 }
