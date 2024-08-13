@@ -73,6 +73,9 @@ export default function Home({ params }) {
 
   //---------------------------
 
+  // TokenAmount
+  const [tokenValue, setTokenValue] = useState();
+
   const contractInstance = "0xb999e3C80150322c7bd6d1aFB5860d3f65CDa912";
   const contractABI = process.env.abi;
   const [medicalContract, setMedicalContract] = useState();
@@ -163,6 +166,13 @@ export default function Home({ params }) {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const getPerTokenAmount = async () => {
+    try {
+      const tokenBalance = await medicalContract.returnPerAmount();
+      setTokenValue(parseInt(tokenBalance));
+    } catch (error) {}
   };
 
   const getToMintMedicalNFT = async () => {
@@ -290,6 +300,10 @@ export default function Home({ params }) {
 
   if (toMintNFTValue == undefined) {
     getToMintMedicalNFT();
+  }
+
+  if (tokenValue == undefined) {
+    getPerTokenAmount();
   }
   const getImage = (ipfsURL) => {
     const hash = ipfsURL.split("ipfs://")[1];
@@ -473,6 +487,7 @@ export default function Home({ params }) {
               setAmountValue={setAmountValue}
               BuyTokens={BuyTokens}
               setWeiForToken={setWeiForToken}
+              tokenValue={tokenValue}
             />
           )}
           {showTransferToken && (

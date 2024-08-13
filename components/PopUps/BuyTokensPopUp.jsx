@@ -5,6 +5,7 @@ export default function BuyTokensPopUp({
   setAmountValue,
   BuyTokens,
   setWeiForToken,
+  tokenValue,
 }) {
   const refElement = useRef();
 
@@ -32,7 +33,9 @@ export default function BuyTokensPopUp({
             </p>
           </div>
           <div>
-            <p className="font-extralight text-sm">1 Token = 1000 Wei</p>
+            <p className="font-extralight text-sm">
+              1 Token = {tokenValue ? tokenValue : "XXX"} Wei
+            </p>
           </div>
 
           <div className=" bg-black text-white grid grid-cols-2">
