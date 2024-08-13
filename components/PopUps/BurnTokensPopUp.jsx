@@ -2,9 +2,9 @@ import { useRef } from "react";
 
 export default function BurnTokensPopUp({
   setShowBurn,
-  setAmountValue,
-  BurnTokens,
-  setWeiForToken,
+
+  setBurnTokenAmount,
+  burnExtraTokens,
 }) {
   const refElement = useRef();
 
@@ -31,9 +31,6 @@ export default function BurnTokensPopUp({
               Burn Tokens
             </p>
           </div>
-          <div>
-            <p className="font-extralight text-sm">1 Token = 1000 Wei</p>
-          </div>
 
           <div className=" bg-black text-white grid grid-cols-2">
             <form className="grid bg-black px-20 py-5  col-start-1 col-end-3  rounded-xl">
@@ -43,13 +40,13 @@ export default function BurnTokensPopUp({
               <input
                 className="text-white  p-5 rounded-md mx-5 my-2  border-yellow-400 border-2 bg-transparent focus-within:bg-black focus:outline-yellow-400 focus:outline-none"
                 placeholder="Enter the Token Amount"
-                onChange={(e) => setAmountValue(e.target.value)}
+                onChange={(e) => setBurnTokenAmount(e.target.value)}
               />
             </form>
           </div>
           <button
             className="px-10 py-5 bg-orange-600 rounded-lg mb-5"
-            onClick={() => BurnTokens()}
+            onClick={() => burnExtraTokens()}
           >
             Submit
           </button>

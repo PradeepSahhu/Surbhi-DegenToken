@@ -251,6 +251,19 @@ const nextConfig = {
         inputs: [
           {
             internalType: "uint256",
+            name: "_tokenAmount",
+            type: "uint256",
+          },
+        ],
+        name: "burnToken",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
             name: "_amount",
             type: "uint256",
           },

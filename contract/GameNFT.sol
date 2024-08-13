@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract MedicalNFTContract is ERC721URIStorage {
+contract GameNFT is ERC721URIStorage {
     uint256 private TokenCount;
     mapping(address => string[]) public mintedAssets;
     string[] public toMintNFT;

@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./MedicalNFT.sol";
+import "./GameNFT.sol";
 
 contract DegenTokenContract is ERC20 {
     address public owner;
-    MedicalNFTContract public immutable medicalInstance;
+    GameNFT public immutable gameInstance;
     uint private _perAmount;
 
     modifier onlyOwner() {
@@ -15,7 +15,7 @@ contract DegenTokenContract is ERC20 {
     }
 
     constructor(uint _tokenToMint, uint _perTokenAmount) ERC20("Degen", "DGN") {
-        medicalInstance = new MedicalNFTContract();
+        gameInstance = new GameNFT();
         _perAmount = _perTokenAmount;
         _mint(msg.sender, _tokenToMint);
         owner = msg.sender;
@@ -30,7 +30,7 @@ contract DegenTokenContract is ERC20 {
     }
 
     function returnAsset() external view returns (address) {
-        return address(medicalInstance);
+        return address(gameInstance);
     }
 
     function returnOwner() external view returns (address) {
@@ -40,15 +40,15 @@ contract DegenTokenContract is ERC20 {
     function redeemTokens(string memory _URI, uint _NftPrice) external {
         require(balanceOf(msg.sender) >= _NftPrice);
         _transfer(msg.sender, address(this), _NftPrice);
-        medicalInstance.gameAssetMint(msg.sender, _URI);
+        gameInstance.gameAssetMint(msg.sender, _URI);
     }
 
     function getToMintNFT() external view returns (string[] memory) {
-        return medicalInstance.returnToMintNFT();
+        return gameInstance.returnToMintNFT();
     }
 
     function addNFTURI(string memory _URI) external {
-        medicalInstance.addMintNFT(_URI);
+        gameInstance.addMintNFT(_URI);
     }
 
     function buyTokens(uint _amount) external payable {
@@ -66,7 +66,7 @@ contract DegenTokenContract is ERC20 {
     }
 
     function getMintedNFT() external view returns (string[] memory) {
-        return medicalInstance.returnMintedNFT(msg.sender);
+        return gameInstance.returnMintedNFT(msg.sender);
     }
 
     function burnToken(uint _tokenAmount) external {
@@ -75,9 +75,7 @@ contract DegenTokenContract is ERC20 {
     }
 
     function withdrawEther() external onlyOwner {
-        (bool res, ) = payable(msg.sender).call{
-            value: balanceOf(address(this))
-        }("");
+        (bool res, ) = payable(owner).call{value: balanceOf(address(this))}("");
         require(res);
     }
 

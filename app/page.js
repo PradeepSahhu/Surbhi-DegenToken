@@ -94,6 +94,7 @@ export default function Home({ params }) {
       setConnectedAccounts(accountsArray[0]);
       console.log(accountsArray[0]);
     }
+
     connectToMetamaskWallet();
   };
 
@@ -136,8 +137,8 @@ export default function Home({ params }) {
   const [showBurn, setShowBurn] = useState(false);
 
   const urls = [
-    "https://ipfs.io/ipfs/QmfK2ttedU6wxgYUF3EBXF1o5HkdwqVrqVRrDniaPbC9LL",
-    "https://ipfs.io/ipfs/QmRTk8waq4g9AmRvdSEVCRt7TmNkYa1WUrVdxeptvZJpvF",
+    "https://ipfs.io/ipfs/QmfK2ttedU6wxgYUF3EBXF1o5HkdwqVrqVRrDniaPbC9LL", //Fire
+    "https://ipfs.io/ipfs/QmRTk8waq4g9AmRvdSEVCRt7TmNkYa1WUrVdxeptvZJpvF", //Shadow
     "https://ipfs.io/ipfs/QmYKk5MWjTSuvS7teJvgYon5LHMzu52CheVNsP3p8rDEi7",
     "https://ipfs.io/ipfs/QmTMtjc8x6UBHeitfom4u27c2JqQTmd41jV4yX2wx7Rvty",
     "https://ipfs.io/ipfs/Qmcn7zKK6fgA3BhEiNCuJLAw6fdbw4cR1TR65HQgV6pM8j",
@@ -196,9 +197,11 @@ export default function Home({ params }) {
 
   const burnExtraTokens = async () => {
     try {
-      // await medicalContract.burnToken(parseInt(burntokenAmount));
+      console.log("This functino is executing");
+      await medicalContract.burnToken(parseInt(burntokenAmount));
       console.table(parseInt(burntokenAmount));
     } catch (error) {
+      console.table([parseInt(burntokenAmount)]);
       console.log(error);
     }
   };
@@ -374,7 +377,7 @@ export default function Home({ params }) {
               className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
               href={`/BoughtNFTs`}
             >
-              Redeemed NFTs
+              Purchased NFTs
             </Link>
           </div>
         </div>
@@ -407,7 +410,8 @@ export default function Home({ params }) {
             </div>
             <div className="my-2">
               <p className="text-xl">
-                Genera: <span className="text-yellow-400 ml-2">Medical</span>
+                Genera:{" "}
+                <span className="text-yellow-400 ml-2">Degen Gaming</span>
               </p>
             </div>
 
@@ -473,7 +477,7 @@ export default function Home({ params }) {
           <div className="mt-10 col-start-1 col-end-4 bg-opacity-90 p-10 justify-center space-x-8 space-y-5 relative">
             <div className="text-2xl bolder flex justify-center mb-10 ">
               <p className="bg-gradient-to-r from-red-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent px-10 text-5xl">
-                NFTs To Buy
+                Gaming NFTs
               </p>
             </div>
 
