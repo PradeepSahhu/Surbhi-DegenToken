@@ -175,18 +175,6 @@ export default function Home({ params }) {
     } catch (error) {}
   };
 
-  const getToMintMedicalNFT = async () => {
-    try {
-      console.log("This getToMintMedicalNFT function is being called");
-      const toMintNFT = await medicalContract.getToMintNFT();
-      console.log(toMintNFT);
-      setToMintNFTValue(toMintNFT.length);
-      setToMintMedicalNFT(toMintNFT);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const BuyTokens = async () => {
     try {
       console.table([parseInt(amountValue), parseInt(weiFortoken)]);
@@ -223,7 +211,7 @@ export default function Home({ params }) {
     }
   };
 
-  const toMintNFT = async (URI, price) => {
+  const redeemingTokensBuyingItems = async (URI, price) => {
     try {
       await medicalContract.redeemTokens(URI, price);
       console.log(URI, price);
@@ -236,7 +224,7 @@ export default function Home({ params }) {
     try {
       console.log("The upload string is  Connection is : " + uploadString);
 
-      // await medicalContract.addNFTURI(uploadString);
+      await medicalContract.addNFTURI(uploadString);
     } catch (error) {
       console.log(error);
     }
@@ -251,22 +239,35 @@ export default function Home({ params }) {
     }
   };
 
-  const getAssetConnectionAddress = async () => {
+  // const getAssetConnectionAddress = async () => {
+  //   try {
+  //     const contract = await MarketPlaceConnection(params.Marketplace);
+  //     const res = await contract.returnAsset();
+  //     console.log("The response address is : " + res);
+  //     setAssetConnectionAddress(res);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  //same data on two functions
+
+  const getAllURIfromContracts = async () => {
     try {
-      const contract = await MarketPlaceConnection(params.Marketplace);
-      const res = await contract.returnAsset();
-      console.log("The response address is : " + res);
-      setAssetConnectionAddress(res);
+      const res = await medicalContract.getToMintNFT();
+      setAllURIFromContract(res);
+      console.log("Set IPFS from contract is : " + res);
     } catch (error) {
       console.log(error);
     }
   };
-
-  const getAllURIfromContracts = async () => {
+  const getToMintMedicalNFT = async () => {
     try {
-      // const res = await medicalContract.getToMintNFT();
-      setAllURIFromContract(res);
-      console.log("Set IPFS from contract is : " + res);
+      console.log("This getToMintMedicalNFT function is being called");
+      const toMintNFT = await medicalContract.getToMintNFT();
+      console.log(toMintNFT);
+      setToMintNFTValue(toMintNFT.length);
+      setToMintMedicalNFT(toMintNFT);
     } catch (error) {
       console.log(error);
     }
@@ -282,7 +283,7 @@ export default function Home({ params }) {
     getAllURIfromContracts();
   }
   if (toMintIPFS == undefined) {
-    fetchMultipleData(getAllURIfromContracts, setFunc);
+    fetchMultipleData(allURIFromContract, setFunc);
   }
 
   //Done...
@@ -451,8 +452,8 @@ export default function Home({ params }) {
                     itemDescription={eachItem.description}
                     itemSrc={getImage(eachItem.image)}
                     itemPrice={eachItem.price}
-                    toMintNFT={toMintNFT}
-                    URI={allIPFS[index]}
+                    redeemingTokensBuyingItems={redeemingTokensBuyingItems}
+                    URI={allURIFromContract[index]}
                   />
                 ))
               : ""}
