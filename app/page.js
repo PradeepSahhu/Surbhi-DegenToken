@@ -364,10 +364,7 @@ export default function Home({ params }) {
           <div className="flex justify-center">
             <Link
               className="bg-gradient-to-r from-yellow-400 to-black px-8 pb-2.5 pt-3 text-xs font-medium uppercase leading-normal rounded-2xl"
-              href={{
-                pathname: `/BoughtNFTs`,
-                query: `${mintedNFT}`,
-              }}
+              href={`/BoughtNFTs`}
             >
               Redeemed NFTs
             </Link>
